@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Serviço Técnico</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        body {
+            background-color: #000000;
+            background-image: url('download.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            padding: 20px;
+            color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 0;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: rgba(30, 30, 30, 0.9);
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(100, 100, 100, 0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #ffffff;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #f5f5f5;
+            font-size: 16px;
+        }
+        
+        input[type="text"],
+        input[type="time"] {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #444;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background-color: rgba(50, 50, 50, 0.8);
+            color: #fff;
+        }
+        
+        input[type="text"]:focus,
+        input[type="time"]:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.6);
+            transform: translateY(-2px);
+            background-color: rgba(60, 60, 60, 0.9);
+        }
+        
+        input[type="text"]::placeholder,
+        input[type="time"]::placeholder {
+            color: #aaa;
+        }
+        
+        .time-inputs {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .time-inputs .form-group {
+            flex: 1;
+        }
+        
+        .signature-container {
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: rgba(40, 40, 40, 0.7);
+            border-radius: 8px;
+            border: 1px solid #444;
+        }
+        
+        .signature-display {
+            min-height: 120px;
+            padding: 20px;
+            background-color: rgba(30, 30, 30, 0.9);
+            border: 2px dashed #555;
+            border-radius: 8px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-style: italic;
+            color: #aaa;
+            margin-top: 10px;
+        }
+        
+        .signature-preview {
+            font-size: 26px;
+            font-family: 'Dancing Script', cursive;
+            color: #f5f5f5;
+            padding: 10px;
+        }
+        
+        .signature-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 15px;
+        }
+        
+        button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            flex: 1;
+        }
+        
+        #clearSignature {
+            background: linear-gradient(to right, #e74c3c, #c0392b);
+            color: white;
+        }
+        
+        #clearSignature:hover {
+            background: linear-gradient(to right, #c0392b, #a33226);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(192, 57, 43, 0.4);
+        }
+        
+        #updateSignature {
+            background: linear-gradient(to right, #3498db, #2980b9);
+            color: white;
+        }
+        
+        #updateSignature:hover {
+            background: linear-gradient(to right, #2980b9, #1c6ea4);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(41, 128, 185, 0.4);
+        }
+        
+        #submitBtn {
+            background: linear-gradient(to right, #2ecc71, #27ae60);
+            color: white;
+            width: 100%;
+            font-size: 17px;
+            padding: 18px;
+            margin-top: 15px;
+        }
+        
+        #submitBtn:hover {
+            background: linear-gradient(to right, #27ae60, #219653);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+        
+        .signature-line {
+            border-top: 1px solid #555;
+            margin-top: 10px;
+            text-align: center;
+            padding-top: 10px;
+            font-style: italic;
+            color: #999;
+        }
+        
+        .form-footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #888;
+            font-size: 14px;
+        }
+        
+        .instructions {
+            background-color: rgba(30, 50, 70, 0.6);
+            padding: 18px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #3498db;
+            color: #e1f5fe;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .logo svg {
+            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.7));
+        }
+        
+        @media (max-width: 600px) {
+            .time-inputs {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .container {
+                padding: 25px 20px;
+            }
+            
+            body {
+                padding: 15px 10px;
+            }
+            
+            .signature-controls {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            button {
+                width: 100%;
+            }
+            
+            body {
+                background-attachment: scroll;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+        }
+        
+        .glow-effect {
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        /* Novos estilos para a resposta do servidor */
+        .response-container {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: rgba(40, 40, 40, 0.8);
+            display: none;
+        }
+        
+        .success {
+            border-left: 4px solid #2ecc71;
+            display: block;
+        }
+        
+        .error {
+            border-left: 4px solid #e74c3c;
+            display: block;
+        }
+        
+        .download-link {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 15px;
+            background: linear-gradient(to right, #3498db, #2980b9);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .download-link:hover {
+            background: linear-gradient(to right, #2980b9, #1c6ea4);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <svg width="110" height="110" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" fill="#3498db" opacity="0.9" />
+                <path d="M30,35 L50,20 L70,35 L65,65 L35,65 Z" fill="#222" />
+                <text x="50" y="52" text-anchor="middle" fill="#f5f5f5" font-size="12" font-weight="bold">TÉCNICO</text>
+                <path d="M40,40 L60,40 L55,60 L45,60 Z" fill="#3498db" />
+            </svg>
+        </div>
+        
+        <h1>Registro de Serviço Técnico</h1>
+        
+        <div class="instructions">
+            <p>Preencha os dados abaixo. A assinatura do técnico será gerada automaticamente com o nome do técnico.</p>
+        </div>
+        
+        <form id="serviceForm">
+            <div class="form-group">
+                <label for="clientName">Nome do Cliente:</label>
+                <input type="text" id="clientName" name="clientName" required placeholder="Digite o nome completo do cliente">
+            </div>
+            
+            <div class="time-inputs">
+                <div class="form-group">
+                    <label for="startTime">Horário de Início:</label>
+                    <input type="time" id="startTime" name="startTime" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="endTime">Horário de Término:</label>
+                    <input type="time" id="endTime" name="endTime" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="technicianName">Nome do Técnico:</label>
+                <input type="text" id="technicianName" name="technicianName" required placeholder="Digite o nome do técnico responsável">
+            </div>
+            
+            <div class="form-group signature-container">
+                <label for="signature">Assinatura do Técnico:</label>
+                <div class="signature-display">
+                    <div id="signaturePreview" class="signature-preview">A assinatura aparecerá aqui após digitar o nome do técnico</div>
+                </div>
+                <div class="signature-line">Assinatura gerada automaticamente com o nome do técnico</div>
+                
+                <div class="signature-controls">
+                    <button type="button" id="updateSignature">Atualizar Assinatura</button>
+                    <button type="button" id="clearSignature">Limpar Assinatura</button>
+                </div>
+            </div>
+            
+            <button type="submit" id="submitBtn">Registrar Serviço</button>
+        </form>
+        
+        <div id="responseMessage" class="response-container"></div>
+        
+        <div class="form-footer">
+            <p>Este formulário registra os dados do serviço técnico para controle e documentação.</p>
+        </div>
+    </div>
+
+    <script>
+        // Elementos do DOM
+        const technicianNameInput = document.getElementById('technicianName');
+        const signaturePreview = document.getElementById('signaturePreview');
+        const updateSignatureBtn = document.getElementById('updateSignature');
+        const clearSignatureBtn = document.getElementById('clearSignature');
+        const form = document.getElementById('serviceForm');
+        const responseMessage = document.getElementById('responseMessage');
+        
+        // Função para atualizar a assinatura
+        function updateSignature() {
+            const technicianName = technicianNameInput.value.trim();
+            
+            if (technicianName) {
+                signaturePreview.textContent = technicianName;
+                signaturePreview.style.color = '#f5f5f5';
+                signaturePreview.classList.add('glow-effect');
+                setTimeout(() => {
+                    signaturePreview.classList.remove('glow-effect');
+                }, 1000);
+            } else {
+                signaturePreview.textContent = 'Digite o nome do técnico para gerar a assinatura';
+                signaturePreview.style.color = '#aaa';
+            }
+        }
+        
+        // Event listener para o campo do nome do técnico
+        technicianNameInput.addEventListener('input', updateSignature);
+        
+        // Event listener para o botão de atualizar assinatura
+        updateSignatureBtn.addEventListener('click', updateSignature);
+        
+        // Event listener para o botão de limpar assinatura
+        clearSignatureBtn.addEventListener('click', () => {
+            signaturePreview.textContent = 'A assinatura aparecerá aqui após digitar o nome do técnico';
+            signaturePreview.style.color = '#aaa';
+        });
+        
+        // Mostrar mensagem de resposta
+        function showResponse(message, isSuccess = true) {
+            responseMessage.textContent = message;
+            responseMessage.className = isSuccess ? 'response-container success' : 'response-container error';
+            
+            // Se for sucesso e tiver link de download
+            if (isSuccess && message.includes('http')) {
+                const linkMatch = message.match(/(http:\/\/[^\s]+)/);
+                if (linkMatch) {
+                    const link = linkMatch[0];
+                    responseMessage.innerHTML = `
+                        ${message.replace(link, '')}
+                        <br>
+                        <a href="${link}" class="download-link" target="_blank">Baixar Imagem Modificada</a>
+                    `;
+                }
+            }
+        }
+        
+        // Enviar formulário
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const technicianName = technicianNameInput.value.trim();
+            const clientName = document.getElementById('clientName').value;
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            
+            if (!technicianName) {
+                showResponse('Por favor, preencha o nome do técnico antes de enviar o formulário.', false);
+                return;
+            }
+            
+            // Verificar se a assinatura foi gerada
+            if (signaturePreview.textContent !== technicianName) {
+                showResponse('Por favor, clique em "Atualizar Assinatura" antes de enviar o formulário.', false);
+                return;
+            }
+            
+            try {
+                // Mostrar indicador de carregamento
+                const originalText = submitBtn.textContent;
+                submitBtn.textContent = 'Processando...';
+                submitBtn.disabled = true;
+                
+                // Preparar dados para enviar
+                const formData = {
+                    clientName: clientName,
+                    technicianName: technicianName,
+                    startTime: startTime,
+                    endTime: endTime
+                };
+                
+                // Enviar para o backend
+                const response = await fetch('http://localhost:5000/api/process-form', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showResponse(`Sucesso: ${result.message} Imagem disponível em: ${result.image_url}`);
+                } else {
+                    showResponse(`Erro: ${result.error}`, false);
+                }
+                
+            } catch (error) {
+                showResponse('Erro de conexão com o servidor. Verifique se o backend está rodando.', false);
+                console.error('Erro:', error);
+            } finally {
+                // Restaurar botão
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+        
+        // Inicializar a assinatura quando a página carregar
+        window.addEventListener('load', updateSignature);
+        
+        // Adicionar efeito de foco nos inputs
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.classList.add('glow-effect');
+            });
+            
+            input.addEventListener('blur', () => {
+                input.parentElement.classList.remove('glow-effect');
+            });
+        });
+    </script>
+</body>
+</html>
