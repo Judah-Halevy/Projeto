@@ -75,7 +75,9 @@
         }
         
         input[type="text"],
-        input[type="time"] {
+        input[type="time"],
+        input[type="number"],
+        textarea {
             width: 100%;
             padding: 15px;
             border: 1px solid #444;
@@ -87,7 +89,9 @@
         }
         
         input[type="text"]:focus,
-        input[type="time"]:focus {
+        input[type="time"]:focus,
+        input[type="number"]:focus,
+        textarea:focus {
             border-color: #3498db;
             outline: none;
             box-shadow: 0 0 8px rgba(52, 152, 219, 0.6);
@@ -96,8 +100,15 @@
         }
         
         input[type="text"]::placeholder,
-        input[type="time"]::placeholder {
+        input[type="time"]::placeholder,
+        input[type="number"]::placeholder,
+        textarea::placeholder {
             color: #aaa;
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
         }
         
         .time-inputs {
@@ -134,7 +145,7 @@
         
         .signature-preview {
             font-size: 26px;
-            font-family: 'Dancing Script', cursive;
+            font-family: 'Dancing Script', cursive,'Arial', sans-serif;
             color: #f5f5f5;
             padding: 10px;
         }
@@ -297,6 +308,35 @@
             background: linear-gradient(to right, #2980b9, #1c6ea4);
             transform: translateY(-2px);
         }
+        
+        .template-info {
+            background-color: rgba(70, 50, 30, 0.6);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .template-info {
+            background-color: rgba(40, 60, 80, 0.6);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+            display: block;
+            border-left: 4px solid #3498db;
+        }
+        
+        .auto-download {
+            background-color: rgba(46, 204, 113, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
     </style>
 </head>
 <body>
@@ -313,34 +353,50 @@
         <h1>Registro de Serviço Técnico</h1>
         
         <div class="instructions">
-            <p>Preencha os dados abaixo. A assinatura do técnico será gerada automaticamente com o nome do técnico.</p>
+            <p>Preencha os dados abaixo. Após enviar, o download do PDF com ambos os templates será iniciado automaticamente.</p>
+            <p>📋 <strong>Template Básico:</strong> Formulário simplificado</p>
+            <p>📄 <strong>Template Completo:</strong> Inclui todas as informações e observações</p>
         </div>
         
         <form id="serviceForm">
             <div class="form-group">
-                <label for="clientName">Nome do Cliente:</label>
+                <label for="ticketNumber">Número do Chamado: <span class="required">*</span></label>
+                <input type="number" id="ticketNumber" name="ticketNumber" required placeholder="Digite o número do chamado">
+            </div>
+            
+            <div class="form-group">
+                <label for="clientName">Nome do Cliente: <span class="required">*</span></label>
                 <input type="text" id="clientName" name="clientName" required placeholder="Digite o nome completo do cliente">
             </div>
             
             <div class="time-inputs">
                 <div class="form-group">
-                    <label for="startTime">Horário de Início:</label>
+                    <label for="startTime">Horário de Início: <span class="required">*</span></label>
                     <input type="time" id="startTime" name="startTime" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="endTime">Horário de Término:</label>
+                    <label for="endTime">Horário de Término: <span class="required">*</span></label>
                     <input type="time" id="endTime" name="endTime" required>
                 </div>
             </div>
             
             <div class="form-group">
-                <label for="technicianName">Nome do Técnico:</label>
+                <label for="technicianName">Nome do Técnico: <span class="required">*</span></label>
                 <input type="text" id="technicianName" name="technicianName" required placeholder="Digite o nome do técnico responsável">
             </div>
             
+            <div class="form-group">
+                <label for="observations">Observações:</label>
+                <textarea id="observations" name="observations" placeholder="Digite observações adicionais sobre o serviço (opcional)"></textarea>
+                <div class="template-info">
+                    <strong>💡 Informação:</strong> As observações serão incluídas no Template Completo. 
+                    O PDF final conterá ambos os templates automaticamente.
+                </div>
+            </div>
+            
             <div class="form-group signature-container">
-                <label for="signature">Assinatura do Técnico:</label>
+                <label for="signature">Assinatura do Técnico: <span class="required">*</span></label>
                 <div class="signature-display">
                     <div id="signaturePreview" class="signature-preview">A assinatura aparecerá aqui após digitar o nome do técnico</div>
                 </div>
@@ -352,13 +408,20 @@
                 </div>
             </div>
             
-            <button type="submit" id="submitBtn">Registrar Serviço</button>
+            <button type="submit" id="submitBtn">
+                <span id="submitText">Gerar PDF com Ambos os Templates</span>
+                <span id="loadingSpinner" style="display:none;">Gerando PDF...</span>
+            </button>
         </form>
+        
+        <div id="autoDownload" class="auto-download">
+            <p>✅ PDF gerado com sucesso! O download começará automaticamente.</p>
+        </div>
         
         <div id="responseMessage" class="response-container"></div>
         
         <div class="form-footer">
-            <p>Este formulário registra os dados do serviço técnico para controle e documentação.</p>
+            <p>Este sistema gera automaticamente um PDF com ambos os modelos de formulário técnico.</p>
         </div>
     </div>
 
@@ -370,6 +433,11 @@
         const clearSignatureBtn = document.getElementById('clearSignature');
         const form = document.getElementById('serviceForm');
         const responseMessage = document.getElementById('responseMessage');
+        const observationsInput = document.getElementById('observations');
+        const submitBtn = document.getElementById('submitBtn');
+        const submitText = document.getElementById('submitText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const autoDownload = document.getElementById('autoDownload');
         
         // Função para atualizar a assinatura
         function updateSignature() {
@@ -388,13 +456,27 @@
             }
         }
         
-        // Event listener para o campo do nome do técnico
-        technicianNameInput.addEventListener('input', updateSignature);
+        // Função para forçar download do PDF
+        function downloadPDF(pdfUrl) {
+            const link = document.createElement('a');
+            link.href = pdfUrl;
+            link.download = 'comprovante_servico_tecnico.pdf';
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Mostrar mensagem de sucesso
+            autoDownload.style.display = 'block';
+            setTimeout(() => {
+                autoDownload.style.display = 'none';
+            }, 5000);
+        }
         
-        // Event listener para o botão de atualizar assinatura
+        // Event listeners
+        technicianNameInput.addEventListener('input', updateSignature);
         updateSignatureBtn.addEventListener('click', updateSignature);
         
-        // Event listener para o botão de limpar assinatura
         clearSignatureBtn.addEventListener('click', () => {
             signaturePreview.textContent = 'A assinatura aparecerá aqui após digitar o nome do técnico';
             signaturePreview.style.color = '#aaa';
@@ -404,54 +486,44 @@
         function showResponse(message, isSuccess = true) {
             responseMessage.textContent = message;
             responseMessage.className = isSuccess ? 'response-container success' : 'response-container error';
-            
-            // Se for sucesso e tiver link de download
-            if (isSuccess && message.includes('http')) {
-                const linkMatch = message.match(/(http:\/\/[^\s]+)/);
-                if (linkMatch) {
-                    const link = linkMatch[0];
-                    responseMessage.innerHTML = `
-                        ${message.replace(link, '')}
-                        <br>
-                        <a href="${link}" class="download-link" target="_blank">Baixar Imagem Modificada</a>
-                    `;
-                }
-            }
         }
         
         // Enviar formulário
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const technicianName = technicianNameInput.value.trim();
-            const clientName = document.getElementById('clientName').value;
-            const startTime = document.getElementById('startTime').value;
-            const endTime = document.getElementById('endTime').value;
+            const formData = {
+                ticketNumber: document.getElementById('ticketNumber').value,
+                clientName: document.getElementById('clientName').value,
+                technicianName: technicianNameInput.value.trim(),
+                startTime: document.getElementById('startTime').value,
+                endTime: document.getElementById('endTime').value,
+                observations: observationsInput.value.trim()
+            };
             
-            if (!technicianName) {
-                showResponse('Por favor, preencha o nome do técnico antes de enviar o formulário.', false);
+            // Validações
+            if (!formData.technicianName) {
+                showResponse('Por favor, preencha o nome do técnico.', false);
                 return;
             }
             
-            // Verificar se a assinatura foi gerada
-            if (signaturePreview.textContent !== technicianName) {
-                showResponse('Por favor, clique em "Atualizar Assinatura" antes de enviar o formulário.', false);
+            if (!formData.ticketNumber) {
+                showResponse('Por favor, preencha o número do chamado.', false);
+                return;
+            }
+            
+            if (signaturePreview.textContent !== formData.technicianName) {
+                showResponse('Por favor, clique em "Atualizar Assinatura" antes de enviar.', false);
                 return;
             }
             
             try {
-                // Mostrar indicador de carregamento
-                const originalText = submitBtn.textContent;
-                submitBtn.textContent = 'Processando...';
+                // Mostrar loading
+                submitText.style.display = 'none';
+                loadingSpinner.style.display = 'inline';
                 submitBtn.disabled = true;
-                
-                // Preparar dados para enviar
-                const formData = {
-                    clientName: clientName,
-                    technicianName: technicianName,
-                    startTime: startTime,
-                    endTime: endTime
-                };
+                form.classList.add('loading');
+                autoDownload.style.display = 'none';
                 
                 // Enviar para o backend
                 const response = await fetch('http://localhost:5000/api/process-form', {
@@ -465,33 +537,42 @@
                 const result = await response.json();
                 
                 if (response.ok) {
-                    showResponse(`Sucesso: ${result.message} Imagem disponível em: ${result.image_url}`);
+                    showResponse(`✅ PDF gerado com sucesso! Contém ${result.templates_gerados} templates.`);
+                    
+                    // Iniciar download automático do PDF
+                    setTimeout(() => {
+                        downloadPDF(result.pdf_url);
+                    }, 1000);
+                    
                 } else {
-                    showResponse(`Erro: ${result.error}`, false);
+                    showResponse(`❌ Erro: ${result.error}`, false);
                 }
                 
             } catch (error) {
-                showResponse('Erro de conexão com o servidor. Verifique se o backend está rodando.', false);
+                showResponse('❌ Erro de conexão. Verifique se o servidor está rodando.', false);
                 console.error('Erro:', error);
             } finally {
                 // Restaurar botão
-                submitBtn.textContent = originalText;
+                submitText.style.display = 'inline';
+                loadingSpinner.style.display = 'none';
                 submitBtn.disabled = false;
+                form.classList.remove('loading');
             }
         });
         
-        // Inicializar a assinatura quando a página carregar
-        window.addEventListener('load', updateSignature);
-        
-        // Adicionar efeito de foco nos inputs
-        const inputs = document.querySelectorAll('input');
-        inputs.forEach(input => {
-            input.addEventListener('focus', () => {
-                input.parentElement.classList.add('glow-effect');
-            });
+        // Inicializar
+        window.addEventListener('load', () => {
+            updateSignature();
             
-            input.addEventListener('blur', () => {
-                input.parentElement.classList.remove('glow-effect');
+            // Adicionar efeito de foco nos inputs
+            document.querySelectorAll('input, textarea').forEach(input => {
+                input.addEventListener('focus', () => {
+                    input.parentElement.classList.add('glow-effect');
+                });
+                
+                input.addEventListener('blur', () => {
+                    input.parentElement.classList.remove('glow-effect');
+                });
             });
         });
     </script>
